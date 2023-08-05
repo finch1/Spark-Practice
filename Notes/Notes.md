@@ -27,7 +27,7 @@ import collections
 import os
 
 '''
-set the Master node as the local machine on a single thread, single process
+set the Master node as the local machine (not on the cluster) on a single thread, single process
 set app name to see the results
 '''
 conf = SparkConf().setMaster("local[*]").setAppName("RatingsHistogram")
