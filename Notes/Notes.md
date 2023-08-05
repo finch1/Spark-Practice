@@ -39,7 +39,7 @@ print("Working Directory: " + os.getcwd())
 
 # Transformations
 ### Map
-Map allows you to take a set of data and transform it into another set of data, given a function that operates on the RDD. For ex. if I want to square all the numbers in an RDD, have a *map* that *points* to a *function* that multiplies everything in an RDD by itself.
+Map has a 1:1 relationship, i.e. every row in the dataset goes through the function. Map allows you to take a set of data and transform it into another set of data, given a function that operates on the RDD. For ex. if I want to square all the numbers in an RDD, have a *map* that *points* to a *function* that multiplies everything in an RDD by itself.
 
 rdd = sc.parallelize([1,2,3,4])
 rdd.map(lambda X: X*X) # square all numbers
@@ -66,7 +66,7 @@ Union, intersection, subtract, cartesian
 ## Actions
 
 ### collect
-dump a values
+dump RDD values and get results. 
 ### count
 count all values
 ### countByValue
