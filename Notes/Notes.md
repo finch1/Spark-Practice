@@ -9,9 +9,8 @@ Once your download is complete, rename the folder to Spark
 # What is Spark
 Spark scripts can be in Python, Java or Scala. Scripts are run by the driver and distributed. Spark can run on top of Hadoop cluster. Spark doesn't so anything until its told to. It uses DAG to optimize tasks.
 
-<div>
-    <img src="Fig A.png" style="max-width: 30%;"/>        
-</div>
+<img src="Pics/workers.png"/>        
+
 <br></br>
 
 # What is RDD
@@ -45,6 +44,45 @@ rdd = sc.parallelize([1,2,3,4])
 rdd.map(lambda X: X*X) # square all numbers
 
 Ans: 1,4,8,16
+
+```python
+    from pyspark import SparkConf, SparkContext
+    import collections
+    import os
+
+    '''
+        set the Master node as the local machine on a single thread, single process
+        set app name to see the results
+    '''
+    conf = SparkConf().setMaster("local").setAppName("RatingsHistogram")
+    sc = SparkContext(conf = conf)
+
+    print("Working Directory: " + os.getcwd())
+
+    '''
+        load data file. textFile method breaks down the data line by line so each line corresponds to one string value in the RDD
+        lines is iterated to a lambda function. the line is split by delimiter and 3rd column is extracted. In this case, its the rating of the movie, from 1 to 5 stars
+        the map results is assigned to a new RDD called ratings
+        count by value groups the ratings and counts their occurrence
+        link to dataset:https://files.grouplens.org/datasets/movielens/ml-100k.zip
+    '''
+    lines = sc.textFile("/home/vboxuser/SparkCourse/ml-100k/u.data")
+    ratings = lines.map(lambda x: x.split()[2])
+    results = ratings.countByValue()
+
+    '''
+        sort Results by key and print
+    '''
+    sortedResults = collections.OrderedDict(sorted(results.items()))
+    for key, value in sortedResults.items():
+        print("%s %i" % (key, value))
+
+    '''
+        To execute in terminal, type spark-submit 1_6_ratingsCounter.py
+    '''
+
+```
+<img src="Pics/map2.png"/>        
 
 ### Flatmap
 Has the capability to produce multiple values for every input value that you have in your original RDD. The original RDD might be larger or smaller than the resultant RDD.
@@ -96,12 +134,9 @@ create an RDD of just the keys or the values
 
 ### join, rightOuterjoin, leftOuterjoin, cogroup, subtractByKey
 
-<div>
-    <img src="Fig B.png" style="max-width: 30%;"/>        
-</div>
-<div>
-    <img src="Fig C.png" style="max-width: 30%;"/>        
-</div>
+<img src="Pics/map1.png"/>        
+
+<img src="Pics/reduceByKey.png"/>        
 
 ## DataFrames
 - Extend RDD to a DataFrame object
@@ -112,27 +147,27 @@ create an RDD of just the keys or the values
 - Communicate with JDBC/ODBC, Tableau
 
 ```python
-from pyspark.sql import SparkSession, Row
-spark = SparkSession.builder.appName("SparkSQL").getOrCreate() # get or create cause we might already have a persistent session we want to reuse
-inputData = spark.read.json("DataFile")
-inputData.createOrReplaceTempView("myStructuredStuff") # to expose data, give the dataset a name to look like a database table
-myResultDataframe = spark.sql("select * from")
+    from pyspark.sql import SparkSession, Row
+    spark = SparkSession.builder.appName("SparkSQL").getOrCreate() # get or create cause we might already have a persistent session we want to reuse
+    inputData = spark.read.json("DataFile")
+    inputData.createOrReplaceTempView("myStructuredStuff") # to expose data, give the dataset a name to look like a database table
+    myResultDataframe = spark.sql("select * from")
 
-myResultDataframe.show() # show results and how many rows
-myResultDataframe.select("someFieldName") # select column
-myResultDataframe.filter(myResultDataframe.select("someFieldName") > 200) 
-myResultDataframe.groupby(myResultDataframe.select("someFieldName")).mean()
-myResultDataframe.rdd().map(mapperFunction) # for like mapreduce, change to rdd
+    myResultDataframe.show() # show results and how many rows
+    myResultDataframe.select("someFieldName") # select column
+    myResultDataframe.filter(myResultDataframe.select("someFieldName") > 200) 
+    myResultDataframe.groupby(myResultDataframe.select("someFieldName")).mean()
+    myResultDataframe.rdd().map(mapperFunction) # for like mapreduce, change to rdd
 
-from pyspark.sql import functions as func
-func.explode() # similar to flatMap - explodes columns into rows
-func.split()
-func.lower()
+    from pyspark.sql import functions as func
+    func.explode() # similar to flatMap - explodes columns into rows
+    func.split()
+    func.lower()
 
-# passing columns as parameters
-func.split(inputDF.value, '\\W+')
-filter(wordsDF.word!="")
-func.col("colName") # Can also do to refer to a columns name
+    # passing columns as parameters
+    func.split(inputDF.value, '\\W+')
+    filter(wordsDF.word!="")
+    func.col("colName") # Can also do to refer to a columns name
 ```
 
 
